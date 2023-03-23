@@ -88,13 +88,16 @@ public class GameService {
         // inning continue until over is finish or all wicket is fallen or target is achieve
         while(totalWickets < 10 && totalBalls < (over*6) && totalRuns <= target ){
 
-
             if(totalBalls % 6 == 0)
                 bowler = chooseBowler(bowler);
 
             //run on current ball
             totalBalls++;
-            batsmen.get(striker).balls += 1;
+
+            Batsman strikerBatsman = batsmen.get(striker);
+            Bowler currentBowler = bowlers.get(bowler);
+
+            strikerBatsman.setBalls(strikerBatsman.getBalls() + 1);
             int run = giveRuns(battingTeam.get(striker) , bowlingTeam.get(bowler));
 
 
@@ -104,10 +107,10 @@ public class GameService {
                 totalWickets++;
 
                 //saving out batsman detail
-                batsmen.get(striker).StrikeRate = (batsmen.get(striker).runs * 100 ) / batsmen.get(striker).balls;
+                strikerBatsman.setStrikeRate( (strikerBatsman.getRuns() * 100 ) / (strikerBatsman.getBalls()));
 
                 //saving bowler detail
-                bowlers.get(bowler).wickets += 1;
+                currentBowler.setWickets(currentBowler.getWickets() + 1);
 
                 striker = newBatsman++;
             }
@@ -115,10 +118,10 @@ public class GameService {
             else{
                 everyBallRecord.add(String.valueOf(run));
                 //updating batsman and bowler current state
-                batsmen.get(striker).runs += run;
-                batsmen.get(striker).StrikeRate = (batsmen.get(striker).runs * 100 ) / batsmen.get(striker).balls;
+                strikerBatsman.setRuns(strikerBatsman.getRuns() + run);
+                strikerBatsman.setStrikeRate( (strikerBatsman.getRuns() * 100 ) / (strikerBatsman.getBalls()));
 
-                bowlers.get(bowler).runs += run;
+                currentBowler.setRuns(currentBowler.getRuns()+run);
                 totalRuns += run;
 
                 //striker change
@@ -132,10 +135,8 @@ public class GameService {
 
 
             //updating bowler economy
-            bowlers.get(bowler).balls +=1;
-            bowlers.get(bowler).Economy = (bowlers.get(bowler).runs * 6) / bowlers.get(bowler).balls;
-
-
+            currentBowler.setBalls(currentBowler.getBalls() + 1);
+            currentBowler.setEconomy( (currentBowler.getRuns()*6) / (currentBowler.getBalls()));
         }
 
         //updating player carrier state
@@ -143,9 +144,9 @@ public class GameService {
             Batsman better = batsmen.get(i);
             Player player = battingTeam.get(i);
 
-            player.setTotalRun(player.getTotalRun() + better.runs);
-            if(better.runs > player.getHighestScore())
-                player.setHighestScore(better.runs);
+            player.setTotalRun(player.getTotalRun() + better.getRuns());
+            if(better.getRuns() > player.getHighestScore())
+                player.setHighestScore(better.getRuns());
             player.setTotalMatch(player.getTotalMatch() + 1);
             player.setBattingAverage(player.getTotalRun() / player.getTotalMatch());
             playerService.save(player);
@@ -153,11 +154,8 @@ public class GameService {
             Bowler bowler1 = bowlers.get(i);
             player = bowlingTeam.get(i);
 
-            player.setTotalWicket(player.getTotalWicket() + bowler1.wickets);
+            player.setTotalWicket(player.getTotalWicket() + bowler1.getWickets());
         }
-
-
-
 
         return new Inning(totalRuns,totalWickets,totalBalls/6,batsmen,bowlers,everyBallRecord);
     }
