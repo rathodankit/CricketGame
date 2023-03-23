@@ -5,12 +5,12 @@ import lombok.Data;
 //storing bowling performance for every match
 @Data
 public class Bowler{
-    public String player_id;
+    private String player_id;
 
-    public Integer runs;
-    public Integer balls;
-    public Integer wickets;
-    public Integer Economy;
+    private Integer runs;
+    private Integer balls;
+    private Integer wickets;
+    private Integer Economy;
 
     public Bowler(String id){
         player_id = id;
